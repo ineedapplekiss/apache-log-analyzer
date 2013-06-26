@@ -1,8 +1,3 @@
 <?php
-//
-//
-//
-//
-//
 //add diff content
 ?>
