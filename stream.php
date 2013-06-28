@@ -15,7 +15,9 @@ $log->pushHandler(new Monolog\Handler\StreamHandler('app.log', Monolog\Logger::W
 //--------------------------------------------------------
 $subject = Shang\StreamSubject::singleton();
 $hitTopOb = new Shang\HitTopOb();
+$timeOb = new Shang\TimeOb();
 $subject->attach($hitTopOb);
+$subject->attach($timeOb);
 
 
 
@@ -48,7 +50,8 @@ foreach (new DirectoryIterator($logdir) as $fileInfo) {
 }
 
 
-
+$hitTopOb->count();
+$timeOb->count();
 
 
 m();

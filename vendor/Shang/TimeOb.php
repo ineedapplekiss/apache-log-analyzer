@@ -1,9 +1,9 @@
 <?php
 namespace Shang;
 /**
-* 点击量排行
+* 时间段统计
 */
-class HitTopOb implements \SplObserver
+class TimeOb implements \SplObserver
 {
 	public $t=0,$buffer,$result;
 	public function update(\SplSubject $subject) {
