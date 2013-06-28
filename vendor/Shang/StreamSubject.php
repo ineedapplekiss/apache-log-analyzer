@@ -9,14 +9,8 @@ namespace Shang;
  **/
 class StreamSubject implements \SplSubject
 {
-	private $obs;
-
-	/**
-	 * in 输入流，只读
-	 * out 输出流，只写
-	 * buffer 缓冲内容
-	 */
-	public $in=array(),$out,$buffer;
+	private $obs=array(),$buffer;
+	private static $instance;
 
 	/**
 	 * 构造方法
@@ -24,22 +18,48 @@ class StreamSubject implements \SplSubject
 	 * @return void
 	 * @author zhiliang
 	 **/
-	public function __construct()
+	private function __construct()
 	{
-		$this->obs = array();
+		return ;
+	}
+	private function __clone()
+	{
+		return ;
 	}
 
+	/**
+	 * 单例
+	 */
+	public static function singleton()
+	{
+		if(!isset(self::$instance)){
+			$c = __CLASS__;
+			self::$instance = new $c;
+		}
+		return self::$instance;
+	}
 
 	/**
-	 * 处理数据
+	 * 触发事件
 	 *
 	 * @return void
 	 * @author zhiliang
 	 **/
-	public function run()
+	public function setBuffer($buffer)
 	{
-		$this->buffer = 'asdasdasd';
+		$this->buffer = $buffer;
 		$this->notify();
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author zhiliang
+	 **/
+	public function getBuffer()
+	{
+		return $this->buffer;
 	}
 	/**
 	 * 增加观察者

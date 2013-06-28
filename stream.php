@@ -1,49 +1,35 @@
 <?php
-
+require 'vendor/autoload.php';
 
 m();
 
-/* Define our filter class */
-class strtoupper_filter extends php_user_filter {
-    public $buffer = '';
-    function filter($in, $out, &$consumed, $closing)
-    {
-        while ($bucket = stream_bucket_make_writeable($in)) {
-            //$bucket->data = strtoupper($bucket->data);
-            if(!empty($this->buffer))
-            {
-                $bucket->data = $this->buffer.$bucket->data;
-            }
-            $pos = strrpos($bucket->data,"\n");
-            if($pos!==false && $pos!==0)
-            {
-                $this->buffer = substr($bucket->data,$pos);
-                $bucket->data = substr($bucket->data,0,$pos);
-                if($this->buffer=="\n")
-                {
-                    $bucket->data .= $this->buffer;
-                    $this->buffer="";
-                }
-            }
-            else
-            {
-                $this->buffer = $bucket->data;
-            }
-            $bucket->data = preg_replace('#((?:\d{1,3}\.){3}\d{1,3}) - - (\[[^]]{20,30}\]) (\d{1,2}) (\"[^"]{0,1400}\") (\d{3}) (\"{0,1}[0-9-]{0,8}\"{0,1}) (\"{0,1}[^"]{0,1900}\"{0,1}) ([\\\"]{0,3}[^"]{0,1800}[\\\"]{0,3}) (\"{0,1}[^"]{0,1800}\"{0,1})#','\1 - - \2 \4 \5 \6 \7 \8',$bucket->data);
-            //$bucket->data = $bucket->data."=====";  
-            $consumed += $bucket->datalen;
-            stream_bucket_append($out, $bucket);
-        }
-        return PSFS_PASS_ON;
-    }
-}
+//--------------------------------------------------------
+// 定义logger
+//--------------------------------------------------------
+$log = new Monolog\Logger('name');
+$log->pushHandler(new Monolog\Handler\StreamHandler('app.log', Monolog\Logger::WARNING));
 
-/* Register our filter with PHP */
-stream_filter_register("myfilter", "strtoupper_filter")
+
+//--------------------------------------------------------
+// 开启流处理器，注册ob
+//--------------------------------------------------------
+$subject = Shang\StreamSubject::singleton();
+$hitTopOb = new Shang\HitTopOb();
+$subject->attach($hitTopOb);
+
+
+
+//--------------------------------------------------------
+// 注册自定义filter
+//--------------------------------------------------------
+stream_filter_register("myfilter", "Shang\StreamFilter")
     or die("Failed to register filter");
 
+//--------------------------------------------------------
+// 定义输出流,增加write过滤器
+//--------------------------------------------------------
 $out = 'out';
-$w = fopen($out,'a');
+$w = fopen($out,'w');
 stream_filter_append($w, "myfilter");
 
 
@@ -58,6 +44,7 @@ foreach (new DirectoryIterator($logdir) as $fileInfo) {
     $r = gzopen($in,'r');
     echo 'result:'.stream_copy_to_stream($r,$w)."\n";
     gzclose($r);
+    break;
 }
 
 
@@ -78,5 +65,3 @@ function mp()
 	    $m = memory_get_peak_usage();
 		    echo 'peak:'.floor($m/1024)."k----[".floor($m/1024/1024)." M] \n";
 }
-?>
-

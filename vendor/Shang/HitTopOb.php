@@ -5,7 +5,10 @@ namespace Shang;
 */
 class HitTopOb implements \SplObserver
 {
+	public $t=0,$buffer;
 	public function update(\SplSubject $subject) {
-        echo __CLASS__ . ' - ' . $subject->buffer;
+		$this->buffer = $subject->getBuffer();
+        $this->t++;
+        echo __CLASS__ . ' - ' . $this->t."\n";
     }
 }
